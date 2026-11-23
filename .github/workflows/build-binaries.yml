@@ -12,28 +12,8 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.binary }}
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: ubuntu-latest
-            goos: linux
-            goarch: amd64
-            binary: audio-relay-linux-amd64
-          - runner: windows-latest
-            goos: windows
-            goarch: amd64
-            binary: audio-relay-windows-amd64.exe
-          - runner: macos-latest
-            goos: darwin
-            goarch: amd64
-            binary: audio-relay-macos-amd64
-          - runner: macos-latest
-            goos: darwin
-            goarch: arm64
-            binary: audio-relay-macos-arm64
+    name: Build binaries
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
@@ -63,18 +43,19 @@ jobs:
       - name: Build binary
         shell: bash
         env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
         run: |
           mkdir -p dist
-          go build -trimpath -ldflags="-s -w" -o "dist/${{ matrix.binary }}" ./server
+          GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/audio-relay-linux-amd64 ./server
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/audio-relay-windows-amd64.exe ./server
+          GOOS=darwin GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o dist/audio-relay-macos-amd64 ./server
+          GOOS=darwin GOARCH=arm64 go build -trimpath -ldflags="-s -w" -o dist/audio-relay-macos-arm64 ./server
 
-      - name: Upload build artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.binary }}
-          path: dist/${{ matrix.binary }}
+          name: audio-relay-binaries
+          path: dist/*
           if-no-files-found: error
 
   release:
