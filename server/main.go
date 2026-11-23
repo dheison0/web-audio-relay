@@ -284,12 +284,38 @@ type localAddress struct {
 	interfaceName string
 }
 
+func isVirtualInterfaceName(name string) bool {
+	name = strings.ToLower(name)
+	virtualNames := []string{
+		"docker",
+		"veth",
+		"wsl",
+		"hyper-v",
+		"vethernet",
+		"vmware",
+		"virtualbox",
+		"virtual",
+		"tailscale",
+		"zerotier",
+		"vpn",
+	}
+	for _, virtualName := range virtualNames {
+		if strings.Contains(name, virtualName) {
+			return true
+		}
+	}
+	return false
+}
+
 func localAddresses() []localAddress {
 	interfaces, err := net.Interfaces()
 	if err == nil {
 		addresses := make([]localAddress, 0)
 		for _, iface := range interfaces {
 			if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
+				continue
+			}
+			if isVirtualInterfaceName(iface.Name) {
 				continue
 			}
 			addrs, err := iface.Addrs()
@@ -489,6 +515,14 @@ func main() {
 	log.Printf("HTTPS escutando em todas as interfaces na porta TCP %s", httpsPort)
 	for _, address := range interfaces {
 		log.Printf("Instalação do certificado: http://%s:%s/ (interface: %s)", address.ip, httpPort, address.interfaceName)
+		httpURL := "http://" + net.JoinHostPort(address.ip, httpPort) + "/"
+		httpsURL := "https://" + net.JoinHostPort(address.ip, httpsPort) + "/"
+		if err := printTerminalQR(os.Stdout, "QR - Instalação HTTP:", httpURL); err != nil {
+			log.Printf("[QR] Falha ao imprimir QR HTTP: %v", err)
+		}
+		if err := printTerminalQR(os.Stdout, "QR - Aplicação HTTPS:", httpsURL); err != nil {
+			log.Printf("[QR] Falha ao imprimir QR HTTPS: %v", err)
+		}
 	}
 	if len(interfaces) == 0 {
 		log.Printf("Acesso local: http://localhost:%s/ (instalação) e https://localhost:%s/", httpPort, httpsPort)

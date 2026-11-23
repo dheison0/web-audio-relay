@@ -17,6 +17,8 @@ Ao iniciar, o servidor abre duas portas TCP:
 
 A página HTTP mostra os endereços da rede, a impressão digital do certificado, o download do certificado e o botão para abrir a aplicação HTTPS. No Firewall do Windows, permita o aplicativo em redes privadas. Se necessário, libere as portas TCP configuradas para HTTP e HTTPS; WebRTC também usa UDP para o áudio.
 
+Ao iniciar, o terminal também mostra um QR Code para cada endereço HTTP de instalação e um QR Code para cada endereço HTTPS da aplicação. Aponte a câmera do celular para o QR correto; os QR Codes usam apenas os IPs de interfaces LAN ativadas e ignoram adaptadores virtuais comuns, como Docker, WSL, Hyper-V, VMware, VirtualBox e VPN.
+
 As portas podem ser alteradas com as variáveis `PORT` e `HTTPS_PORT`. Elas precisam ser diferentes. O certificado e sua chave CA ficam salvos na pasta de configuração do usuário e são reutilizados; o certificado HTTPS é reemitido ao iniciar para cobrir os IPs locais atuais. Assim, a mudança do IP do hotspot não exige reconfigurar DNS nem instalar outro certificado.
 
 **Segurança:** antes de instalar, compare a impressão digital SHA-256 mostrada na página HTTP com a exibida no terminal do notebook. Instale a CA somente nos dispositivos que você administra e confia. A chave privada da CA nunca deve ser copiada para os celulares nem compartilhada. Ao terminar de usar o sistema, remova a CA dos aparelhos se não quiser que continuem confiando nela.
