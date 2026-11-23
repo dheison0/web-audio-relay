@@ -123,3 +123,9 @@ make build-all
 ```
 
 Os binários ficam em `dist/`. O frontend compilado é incorporado ao executável.
+
+## Builds automáticos
+
+O GitHub Actions compila os binários para Linux (amd64), Windows (amd64) e macOS (amd64 e arm64) em pushes, pull requests e execuções manuais. Os arquivos ficam disponíveis como artefatos na execução do workflow.
+
+Ao enviar uma tag iniciada por `v` (por exemplo, `v1.0.0`), o workflow também cria ou atualiza uma GitHub Release e anexa os binários para download.
