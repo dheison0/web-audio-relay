@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -12,7 +12,10 @@ import {
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 import LockIcon from "@mui/icons-material/Lock";
-import CertificateInstallationInstructions from "./components/CertificateInstallationInstructions";
+
+const CertificateInstallationInstructions = lazy(
+  () => import("./components/CertificateInstallationInstructions"),
+);
 
 type SetupInfo = {
   httpsUrl: string;
@@ -148,7 +151,9 @@ function LocalSetupPage() {
           <CardContent>
             <Stack spacing={1}>
               <Typography variant="h6">3. Instale e confie no certificado</Typography>
-              <CertificateInstallationInstructions />
+              <Suspense fallback={<Typography>Carregando instruções...</Typography>}>
+                <CertificateInstallationInstructions />
+              </Suspense>
             </Stack>
           </CardContent>
         </Card>

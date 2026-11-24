@@ -17,7 +17,6 @@ import {
 import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import ReceiverPanel from "./components/ReceiverPanel";
 import SystemLog from "./components/SystemLog";
 import {
   useLocalProfiles,
@@ -30,6 +29,7 @@ import useScreenWakeLock from "./hooks/useScreenWakeLock";
 import type { Message, Role, Transmitter } from "./types";
 
 const LocalSetupPage = lazy(() => import("./LocalSetupPage"));
+const ReceiverPanel = lazy(() => import("./components/ReceiverPanel"));
 
 function App() {
   const [role, setRole] = useStoredRole();
@@ -476,24 +476,26 @@ function App() {
         )}
 
         {connected && role === "receiver" && (
-          <ReceiverPanel
-            profiles={profiles.profiles}
-            activeProfile={profiles.activeProfile}
-            transmitters={transmitters}
-            receiveVolumes={receiveVolumes}
-            noiseSuppressionByTransmitter={noiseSuppressionByTransmitter}
-            audioLevels={metrics.audioLevels}
-            latencies={metrics.latencies}
-            storageError={profiles.storageError}
-            onSelectProfile={profiles.setActiveProfileId}
-            onCreateProfile={profiles.createProfile}
-            onDeleteProfile={profiles.deleteProfile}
-            onToggleParticipant={profiles.toggleParticipant}
-            includesParticipant={profiles.includesParticipant}
-            onToggleMute={toggleMute}
-            onUpdateNoiseSuppression={updateNoiseSuppression}
-            onUpdateReceiveVolume={(id, value) => void updateReceiveVolume(id, value)}
-          />
+          <Suspense fallback={<Typography>Carregando receptores...</Typography>}>
+            <ReceiverPanel
+              profiles={profiles.profiles}
+              activeProfile={profiles.activeProfile}
+              transmitters={transmitters}
+              receiveVolumes={receiveVolumes}
+              noiseSuppressionByTransmitter={noiseSuppressionByTransmitter}
+              audioLevels={metrics.audioLevels}
+              latencies={metrics.latencies}
+              storageError={profiles.storageError}
+              onSelectProfile={profiles.setActiveProfileId}
+              onCreateProfile={profiles.createProfile}
+              onDeleteProfile={profiles.deleteProfile}
+              onToggleParticipant={profiles.toggleParticipant}
+              includesParticipant={profiles.includesParticipant}
+              onToggleMute={toggleMute}
+              onUpdateNoiseSuppression={updateNoiseSuppression}
+              onUpdateReceiveVolume={(id, value) => void updateReceiveVolume(id, value)}
+            />
+          </Suspense>
         )}
 
         <SystemLog entries={debugLogs} />
