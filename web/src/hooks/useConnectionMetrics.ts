@@ -4,6 +4,7 @@ import type { Role } from "../types";
 type Props = {
   connected: boolean;
   role: Role;
+  audioLevelsTransmitterId: string | null;
   receiverPeers: Map<string, RTCPeerConnection>;
   transmitterPeers: Map<string, RTCPeerConnection>;
   audioNodes: Map<string, { analyser: AnalyserNode }>;
@@ -13,6 +14,7 @@ type Props = {
 function useConnectionMetrics({
   connected,
   role,
+  audioLevelsTransmitterId,
   receiverPeers,
   transmitterPeers,
   audioNodes,
@@ -24,7 +26,10 @@ function useConnectionMetrics({
   addDebugLogRef.current = addDebugLog;
 
   useEffect(() => {
-    if (!connected) return;
+    if (!connected) {
+      setAudioLevels({});
+      return;
+    }
     let active = true;
     const latencyTimer = window.setInterval(() => {
       const peers = role === "receiver" ? receiverPeers : transmitterPeers;
@@ -63,30 +68,37 @@ function useConnectionMetrics({
       );
     }, 1000);
     const levelTimer =
-      role === "receiver"
+      role === "receiver" && audioLevelsTransmitterId
         ? window.setInterval(() => {
-            const levels: Record<string, number[]> = {};
-            audioNodes.forEach(({ analyser }, id) => {
-              const samples = new Uint8Array(analyser.frequencyBinCount);
-              analyser.getByteFrequencyData(samples);
-              const bars = 24;
-              levels[id] = Array.from({ length: bars }, (_, index) => {
-                const start = Math.floor((index * samples.length) / bars);
-                const end = Math.floor(((index + 1) * samples.length) / bars);
-                let sum = 0;
-                for (let sample = start; sample < end; sample++) sum += samples[sample];
-                return end > start ? sum / (end - start) / 255 : 0;
-              });
+            const analyser = audioNodes.get(audioLevelsTransmitterId)?.analyser;
+            if (!analyser) return;
+            const samples = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(samples);
+            const bars = 24;
+            const levels = Array.from({ length: bars }, (_, index) => {
+              const start = Math.floor((index * samples.length) / bars);
+              const end = Math.floor(((index + 1) * samples.length) / bars);
+              let sum = 0;
+              for (let sample = start; sample < end; sample++) sum += samples[sample];
+              return end > start ? sum / (end - start) / 255 : 0;
             });
-            setAudioLevels(levels);
+            setAudioLevels({ [audioLevelsTransmitterId]: levels });
           }, 100)
         : undefined;
+    if (levelTimer === undefined) setAudioLevels({});
     return () => {
       active = false;
       window.clearInterval(latencyTimer);
       if (levelTimer !== undefined) window.clearInterval(levelTimer);
     };
-  }, [connected, role, receiverPeers, transmitterPeers, audioNodes]);
+  }, [
+    connected,
+    role,
+    audioLevelsTransmitterId,
+    receiverPeers,
+    transmitterPeers,
+    audioNodes,
+  ]);
 
   const removePeer = (id: string) => {
     setAudioLevels((current) => {

@@ -37,6 +37,7 @@ function App() {
   const [connected, setConnected] = useState(false);
   const [status, setStatus] = useState("Desconectado");
   const [transmitters, setTransmitters] = useState<Transmitter[]>([]);
+  const [expandedTransmitterId, setExpandedTransmitterId] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
   const [receiveVolumes, setReceiveVolumes] = useState<Record<string, number>>({});
@@ -67,6 +68,7 @@ function App() {
   const metrics = useConnectionMetrics({
     connected,
     role,
+    audioLevelsTransmitterId: expandedTransmitterId,
     receiverPeers: peers.receiverPeersRef.current,
     transmitterPeers: peers.transmitterPeersRef.current,
     audioNodes: peers.audioNodesRef.current,
@@ -151,6 +153,7 @@ function App() {
 
     ws.onclose = (event) => {
       setConnected(false);
+      setExpandedTransmitterId(null);
       setStatus("Desconectado");
       addDebugLog(`WebSocket: fechado code=${event.code} reason=${event.reason || "sem motivo"}`);
     };
@@ -203,6 +206,9 @@ function App() {
           break;
         case "transmitter_left":
           if (message.id) {
+            setExpandedTransmitterId((current) =>
+              current === message.id ? null : current,
+            );
             peers.transmitterNamesRef.current.delete(message.id);
             peers.receiverPeersRef.current.get(message.id)?.close();
             peers.receiverPeersRef.current.delete(message.id);
@@ -304,6 +310,7 @@ function App() {
   const disconnect = () => {
     closeConnection();
     setConnected(false);
+    setExpandedTransmitterId(null);
     setPlaying(false);
     setTransmitters([]);
     peers.transmitterNamesRef.current.clear();
@@ -481,6 +488,8 @@ function App() {
               profiles={profiles.profiles}
               activeProfile={profiles.activeProfile}
               transmitters={transmitters}
+              expandedTransmitterId={expandedTransmitterId}
+              onExpandedTransmitterChange={setExpandedTransmitterId}
               receiveVolumes={receiveVolumes}
               noiseSuppressionByTransmitter={noiseSuppressionByTransmitter}
               audioLevels={metrics.audioLevels}
