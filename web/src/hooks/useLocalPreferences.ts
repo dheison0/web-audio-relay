@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import type { ReceiverProfile, Transmitter } from "../types";
+import type { ReceiverProfile, Role, Transmitter } from "../types";
 
 const PROFILE_STORAGE_KEY = "audio-relay.receiver-profiles";
 const NAME_STORAGE_KEY = "audio-relay.nickname";
+const ROLE_STORAGE_KEY = "audio-relay.role";
 const ALL_PROFILE: ReceiverProfile = {
   id: "all",
   name: "Todos",
@@ -174,4 +175,28 @@ export function useStoredNickname() {
   }, [nickname]);
 
   return [nickname, setNickname] as const;
+}
+
+export function useStoredRole() {
+  const [role, setRole] = useState<Role>(() => {
+    try {
+      const storedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+      return storedRole === "receiver" || storedRole === "transmitter"
+        ? storedRole
+        : "transmitter";
+    } catch (error) {
+      console.error("Não foi possível ler o modo salvo:", error);
+      return "transmitter";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ROLE_STORAGE_KEY, role);
+    } catch (error) {
+      console.error("Não foi possível salvar o modo:", error);
+    }
+  }, [role]);
+
+  return [role, setRole] as const;
 }

@@ -19,7 +19,11 @@ import MicOffIcon from "@mui/icons-material/MicOff";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import ReceiverPanel from "./components/ReceiverPanel";
 import SystemLog from "./components/SystemLog";
-import { useLocalProfiles, useStoredNickname } from "./hooks/useLocalPreferences";
+import {
+  useLocalProfiles,
+  useStoredNickname,
+  useStoredRole,
+} from "./hooks/useLocalPreferences";
 import usePeerConnections from "./hooks/usePeerConnections";
 import useConnectionMetrics from "./hooks/useConnectionMetrics";
 import useScreenWakeLock from "./hooks/useScreenWakeLock";
@@ -28,7 +32,7 @@ import type { Message, Role, Transmitter } from "./types";
 const LocalSetupPage = lazy(() => import("./LocalSetupPage"));
 
 function App() {
-  const [role, setRole] = useState<Role>("transmitter");
+  const [role, setRole] = useStoredRole();
   const [name, setName] = useStoredNickname();
   const [connected, setConnected] = useState(false);
   const [status, setStatus] = useState("Desconectado");
