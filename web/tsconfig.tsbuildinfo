@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/LocalSetupPage.tsx","./src/main.tsx"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/LocalSetupPage.tsx","./src/main.tsx","./src/types.ts","./src/components/CertificateInstallationInstructions.tsx","./src/components/ReceiverPanel.tsx","./src/components/ReceiverProfiles.tsx","./src/components/SystemLog.tsx","./src/hooks/useConnectionMetrics.ts","./src/hooks/useLocalPreferences.ts","./src/hooks/usePeerConnections.ts","./src/hooks/useScreenWakeLock.ts"],"version":"5.9.3"}

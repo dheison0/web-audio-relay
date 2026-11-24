@@ -99,6 +99,9 @@ go run ./server
 - Transmissores e receptores exibem a latência RTT da conexão WebRTC em milissegundos.
 - O transmissor tem uma opção remota de redução de ruído.
 - O receptor controla o volume individual de cada transmissor (0% a 200%) e mostra o nível de áudio recebido.
+- No receptor, use a barra de perfis para alternar rapidamente entre seleções de participantes. O perfil permanente **Todos** reproduz todos os transmissores, inclusive os que conectarem depois. Perfis personalizados permitem escolher participantes e podem ser excluídos; ao criar um perfil, ele copia a seleção ativa.
+- A seleção dos perfis é local ao navegador do receptor e identifica participantes pelo nome. Nomes iguais são tratados como o mesmo participante. Perfis personalizados reproduzem apenas os nomes selecionados; novos nomes precisam ser selecionados nesse perfil. Essa seleção não altera o mute remoto, que continua sendo um controle separado.
+- O nome informado para conectar é salvo no navegador, preenchido automaticamente no próximo acesso e atualizado quando for alterado.
 
 Durante a transmissão, a página solicita ao navegador que mantenha a tela do transmissor ligada. Isso depende do suporte do navegador e não mantém a tela apagada.
 
